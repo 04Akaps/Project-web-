@@ -2,11 +2,18 @@ package com.godcoder.myhome.controller;
 
 import com.godcoder.myhome.model.Board;
 import com.godcoder.myhome.model.BoardRepository;
+import com.godcoder.myhome.validator.BoardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -15,13 +22,32 @@ public class BoardController {
 
     @Autowired
     private BoardRepository boardRepository;
+    @Autowired
+    private BoardValidator boardValidator;
 
     @GetMapping("/list")
-    public String list(Model model){
-        List<Board> boards = boardRepository.findAll();
+    public String list(Model model,@PageableDefault(size = 2) Pageable pageable,
+                       @RequestParam(required = false, defaultValue = "") String searchText){
+       // List<Board> boards = boardRepository.findAll();
+       // Page<Board> boards = boardRepository.findAll(PageRequest.of(0,20));
+       // Page<Board> boards = boardRepository.findAll(pageable);
+        Page<Board> boards = boardRepository.findByTitleContainingOrContentContaining(searchText, searchText, pageable);
+        int startPage = Math.max(1, boards.getPageable().getPageNumber() - 4);
+        int endPage = Math.min(boards.getTotalPages(), boards.getPageable().getPageNumber() + 4);
+
+
+        model.addAttribute("startpage", startPage);
+        model.addAttribute("endpage", endPage);
         model.addAttribute("boards", boards);
         return"board/list";
     }
+    //Page를 통해서 말 그대로 page를 구성할수 있다
+    // page를 사용하게 되면 list.html에서는 list.size를 사용하면 안되고
+    // tatalElement를 사용해야 한다.(get은 붙이지 않아도 된다)
+    // 수정전 : ${#lists.size(boards)}
+    // 수전후 : ${boards.totalElements}
+
+    // pageable를 변수로 받게 하면서 페이지를 지정해 줄수가 있다.
 
     @GetMapping("/form")
     public String form(Model model, @RequestParam(required = false) Long id){
@@ -43,15 +69,22 @@ public class BoardController {
     // form.html 에서   <input type="hidden" th:field="*{id}"> 를 통해서 id를 받아서 비교한다.
 
     @PostMapping("/form")
-    public String returndata(@ModelAttribute Board board){
+    public String returndata(@Valid Board board, BindingResult bindingResult){
+        boardValidator.validate(board, bindingResult);
+        if(bindingResult.hasErrors()) {
+            return "board/form";
+        }
         boardRepository.save(board);
+
         return "redirect:/board/list";
     }
     // -> 쓰기를 통해서 생성된 Board를 받아 오는 코드
     // 쓰기를 통해서 받아온 Board값을 저장해준뒤 다시 list(게시판)으로 이동해준다.
+    // -> @ModelAttribute를 통해서 입력한 값을 받아온다 .
+
     // -> 이떄 값을 list페이지에서 보여주어야 하기 떄문에
     // -> redirect: 를 통해서 다시 GetMapping("/list")를 호출한다.
-
+    // redirect를 붙여줌으로써 바로  list메서드를 실행한다.
 
 
 
