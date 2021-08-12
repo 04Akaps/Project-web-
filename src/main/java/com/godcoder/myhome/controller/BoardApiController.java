@@ -3,7 +3,7 @@ package com.godcoder.myhome.controller;
 import java.util.List;
 
 import com.godcoder.myhome.model.Board;
-import com.godcoder.myhome.model.BoardRepository;
+import com.godcoder.myhome.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;

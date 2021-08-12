@@ -1,5 +1,6 @@
-package com.godcoder.myhome.model;
+package com.godcoder.myhome.repository;
 
+import com.godcoder.myhome.model.Board;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
