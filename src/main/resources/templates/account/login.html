@@ -16,6 +16,7 @@
 
 <body class="text-center">
 <form class="form-signin" th:action="@{/account/login}" method="post">
+  <!-- post방식으로 account/login에 값을 전송하라는 코드 -->
   <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
   <div th:if="${param.error}" class="alert alert-danger" role="alert">
     Invalid username and password.

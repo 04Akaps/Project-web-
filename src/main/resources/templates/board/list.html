@@ -59,7 +59,7 @@
       <td th:text="${board.id}">DB가 없습니다</td>
       <td><a th:text="${board.title}" th:href="@{/board/form(id=${board.id})}" >DB가 없습니다</a></td>
       <td><a th:text="${board.content}" th:href="@{/board/form(id=${board.id})}" >DB가 없습니다</a></td>
-      <td>홍길동</td>
+      <td><a th:text="${board.user.username}"> 홍길동</a></td>
     </tr>
     </tbody>
   </table>

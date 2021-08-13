@@ -20,17 +20,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private DataSource dataSource;
+	// 말 그대로 데이터들을 가져오는 인스턴스를 가져온다.
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
+				.csrf().disable() // 실제 사이트 에서는 사용하면 안된다.(보안에 취약해 진다.)
 				.authorizeRequests()
-					.antMatchers("/", "/css/**", "/account/register").permitAll()
+					.antMatchers("/", "/css/**", "/account/register","/api/**").permitAll()
 					.anyRequest().authenticated()
 					.and()
 				.formLogin()
-					.loginPage("/account/login")
-					.permitAll()
+					.loginPage("/account/login").permitAll()
 					.and()
 				.logout()
 					.permitAll();
@@ -50,6 +51,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 						+ "from user_role ur inner join user u on ur.user_id = u.id "
 						+ "inner join role r on ur.role_id = r.id "
 						+ "where u.username = ?");
+						// user_role 를 ur로 지정을 하거 user 는 u로 지정 후 ur.user_id = u.id 와 같다로 조인을 결성
+						// 마찬가지로 role는 r로 지정후 조인을 결성
+						// 로그인을 할떄에 이 쿼리가 실행된다.
 	}
 
 
@@ -57,5 +61,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	public PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
+	// password를 암호화 하기 위해서 인코딩 하는것
 
 }

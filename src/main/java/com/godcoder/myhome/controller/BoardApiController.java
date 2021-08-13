@@ -5,6 +5,7 @@ import java.util.List;
 import com.godcoder.myhome.model.Board;
 import com.godcoder.myhome.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -51,7 +52,8 @@ public class BoardApiController {
                     });
         }
 
-        @DeleteMapping("/boards/{id}")
+        @Secured("ROLE_ADMIN")      //admin사용자만 사용 가능하게 해준다. (MethodSecurityConfig class가 필요한 어노테이션)
+        @DeleteMapping("")
         void deleteBoard(@PathVariable Long id) {
             boardrepository.deleteById(id);
         }

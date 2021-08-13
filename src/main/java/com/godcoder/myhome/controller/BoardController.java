@@ -1,12 +1,16 @@
 package com.godcoder.myhome.controller;
 
 import com.godcoder.myhome.model.Board;
+import com.godcoder.myhome.model.User;
 import com.godcoder.myhome.repository.BoardRepository;
+import com.godcoder.myhome.service.BoardService;
 import com.godcoder.myhome.validator.BoardValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +26,8 @@ public class BoardController {
     private BoardRepository boardRepository;
     @Autowired
     private BoardValidator boardValidator;
+    @Autowired
+    private BoardService boardService;
 
     @GetMapping("/list")
     public String list(Model model,@PageableDefault(size = 2) Pageable pageable,
@@ -67,13 +73,14 @@ public class BoardController {
     // form.html 에서   <input type="hidden" th:field="*{id}"> 를 통해서 id를 받아서 비교한다.
 
     @PostMapping("/form")
-    public String returndata(@Valid Board board, BindingResult bindingResult){
+    public String returndata(@Valid Board board, BindingResult bindingResult, Authentication authentication){
         boardValidator.validate(board, bindingResult);
         if(bindingResult.hasErrors()) {
             return "board/form";
         }
-        boardRepository.save(board);
 
+        String username = authentication.getName();
+        boardService.save(username, board);
         return "redirect:/board/list";
     }
     // -> 쓰기를 통해서 생성된 Board를 받아 오는 코드
@@ -83,6 +90,15 @@ public class BoardController {
     // -> 이떄 값을 list페이지에서 보여주어야 하기 떄문에
     // -> redirect: 를 통해서 다시 GetMapping("/list")를 호출한다.
     // redirect를 붙여줌으로써 바로  list메서드를 실행한다.
+
+
+    // Authentication 인증된 정보를 받아 오는 인터페이스
+    // 말그대로 인증된 user의 정보를 꺼내올수 있는 인터페이스 이다.
+    // 글을 작성하는 사용자는 인증이 되어있는 사용자 이기 떄문에 Authentication인터페이스를 사용하면 된다.
+    // 인증 정보가 하나이기 떄문에 이렇게 받아 올수가 있다.
+
+    // board.serUser(user)를 통해서 값을 저장할수도 있지만
+    // 다른 해킹의 위험이 있기 떄문에 Authentication를 이용한다.
 
 
 
